@@ -2,119 +2,157 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Dashboard</title>
+<title>Polished Fintech App</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #fff;
-    margin: 0;
-    padding: 0;
-  }
-  .header {
-    padding: 20px;
-    background-color: #1f1f1f;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .balance {
-    background-color: #7d4fff;
-    padding: 15px;
-    border-radius: 10px;
-    margin: 20px;
-  }
-  .section {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    margin: 20px;
-  }
-  .button {
-    flex: 1 1 calc(25% - 20px);
-    background-color: #1f1f1f;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    cursor: pointer;
-  }
-  .promo, .product {
-    background-color: #292929;
-    margin: 20px;
-    padding: 15px;
-    border-radius: 10px;
-  }
-  .bottom-nav {
-    display: flex;
-    justify-content: space-around;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    background-color: #1f1f1f;
-    padding: 10px 0;
-  }
+body {margin:0; font-family:Arial; background:#0d0f1a; color:white; transition:all 0.3s;}
+.page{display:none; padding:20px; max-width:400px; margin:0 auto; opacity:0; transform:translateY(20px); transition:0.5s;}
+.page.active{display:block; opacity:1; transform:translateY(0);}
+input, select, button {width:100%; padding:12px; margin:5px 0; border-radius:10px; border:none; font-size:16px; transition:all 0.3s;}
+input:focus, select:focus {outline:none; box-shadow:0 0 15px #1a4bff; background:#121422;}
+button {background:linear-gradient(45deg,#1a4bff,#00ff88); color:white; cursor:pointer; font-weight:bold; box-shadow:0 4px 10px #1a4bff44;}
+button:hover {transform:scale(1.05); box-shadow:0 0 20px #00ff88;}
+button:active {transform:scale(0.98);}
+.link{color:#1a4bff; cursor:pointer; transition:0.3s;}
+.link:hover{color:#00ff88;}
+.header{background:linear-gradient(135deg,#1a4bff,#0a1f66); border-radius:15px; padding:20px; display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; transition:all 0.3s;}
+.user-info{display:flex; align-items:center;}
+.avatar{width:50px;height:50px;border-radius:50%;background:#ffffff33;display:flex;justify-content:center;align-items:center;margin-right:10px;transition:transform 0.3s;}
+.avatar:hover{transform:scale(1.1);}
+.wallet-balance h1{margin:5px 0 0;}
+.transactions{margin-top:20px; background:#121420; border-radius:15px; padding:10px; transition:all 0.3s;}
+.transaction-item{display:flex; justify-content:space-between; margin-top:10px; background:#1c1f2e; padding:10px; border-radius:10px; cursor:pointer; transition:all 0.3s;}
+.transaction-item:hover{background:linear-gradient(90deg,#1a4bff33,#00ff88 90%);}
+.credit{color:#00ff88;}
+.debit{color:red;}
+.nav{display:flex; justify-content:space-around; position:fixed; bottom:0; width:100%; background:#121420; padding:10px; display:none;}
+.nav button{background:none; border:none; color:white; font-size:28px; position:relative; cursor:pointer; transition:all 0.3s;}
+.nav button.active{color:lime;}
+.nav button:hover{transform:scale(1.4);}
+.badge{position:absolute; top:-2px; right:-2px; width:12px; height:12px; background:red; border-radius:50%; border:1px solid white; animation:pulse 1.5s infinite;}
+@keyframes fadeIn {from {opacity:0; transform:translateY(-10px);} to {opacity:1; transform:translateY(0);}}
+@keyframes shake {0%{transform:translateX(0);}25%{transform:translateX(-5px);}50%{transform:translateX(5px);}75%{transform:translateX(-5px);}100%{transform:translateX(0);}}
+@keyframes pulse {0%{transform:scale(1);}50%{transform:scale(1.3);}100%{transform:scale(1);}}
+.errorShake{animation:shake 0.3s;}
+#accountNameContainer {transition: all 0.5s ease; margin-top:5px;}
+#accountNameContainer.show {display:block; animation:fadeIn 0.5s;}
 </style>
 </head>
 <body>
 
+<!-- LOGIN -->
+<div id="loginPage" class="page active">
+<h2>Login</h2>
+<input type="email" id="loginEmail" placeholder="Email"/>
+<input type="password" id="loginPassword" placeholder="Password"/>
+<button id="loginButton">Login</button>
+<p>Don't have an account? <span class="link" id="goSignup">Sign Up</span></p>
+</div>
+
+<!-- SIGNUP -->
+<div id="signupPage" class="page">
+<h2>Sign Up</h2>
+<input type="text" id="signupName" placeholder="Full Name"/>
+<input type="email" id="signupEmail" placeholder="Email"/>
+<input type="password" id="signupPassword" placeholder="Password"/>
+<input type="password" id="signupConfirm" placeholder="Confirm Password"/>
+<button id="signupButton">Sign Up</button>
+<p>Already have an account? <span class="link" id="goLogin">Login</span></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboardPage" class="page">
 <div class="header">
-  <div>Hi, ROKIB</div>
-  <div>🔔 50</div>
+<div class="user-info"><div class="avatar">👤</div><h3 id="username">User</h3></div>
+<div class="wallet-balance"><p>Wallet Balance</p><h1 id="balance">₦0.00</h1></div>
+</div>
+<div class="actions">
+<button onclick="fundWallet()">💰 Deposit</button>
+<button onclick="showPage('transferPage')">🏦 Transfer</button>
+<button onclick="showPage('accountPage')">⚙️ Account</button>
+</div>
+<div class="transactions">
+<h3>Recent Transactions</h3>
+<div id="lastTransaction"></div>
+<span class="see-more" onclick="showPage('transactionPage')">See More &gt;&gt;</span>
+</div>
 </div>
 
-<div class="balance">
-  <div>Available Balance: ₦20000000006.27</div>
-  <div>Yesterday's Earnings: +₦0.01</div>
+<!-- Bottom Nav -->
+<div class="nav" id="bottomNav">
+<button onclick="showPage('dashboardPage')" id="navHome">🏠</button>
+<button onclick="showPage('transactionPage')" id="navTransactions">📄<span class="badge" id="transactionBadge" style="display:none;"></span></button>
+<button onclick="fundWallet()" id="navWallet">💳</button>
+<button onclick="showPage('accountPage')" id="navAccount">⚙️</button>
 </div>
 
-<div class="section">
-  <div class="button">To Bank</div>
-  <div class="button">To PalmPay</div>
-  <div class="button">Savings</div>
-  <div class="button">ATM Card</div>
-</div>
+<script>
+// App state
+let balance=0, transactions=[], newTransaction=true;
+const bottomNav=document.getElementById('bottomNav');
 
-<div class="section">
-  <div class="button">Airtime</div>
-  <div class="button">Data</div>
-  <div class="button">TV</div>
-  <div class="button">Electricity</div>
-  <div class="button">Refer & Earn</div>
-  <div class="button">Insurance</div>
-  <div class="button">CashBox</div>
-  <div class="button">More</div>
-</div>
+// Navigation
+function showPage(id){
+document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+document.getElementById(id).classList.add('active');
+bottomNav.style.display=(id==='loginPage'||id==='signupPage')?'none':'flex';
+document.querySelectorAll('.nav button').forEach(btn=>btn.classList.remove('active'));
+if(id==='dashboardPage') document.getElementById('navHome').classList.add('active');
+if(id==='transactionPage'){document.getElementById('navTransactions').classList.add('active'); hideTransactionBadge();}
+if(id==='accountPage') document.getElementById('navAccount').classList.add('active');
+updateDashboard();
+}
 
-<div class="promo">
-  <p>Help teens open Fast PayOut</p>
-  <button>GO</button>
-</div>
+// Auth
+let users=JSON.parse(localStorage.getItem("users")||"[]");
+let loggedInUser=JSON.parse(localStorage.getItem("loggedInUser")||"null");
 
-<div class="section product">
-  <div>
-    <h3>Target Savings</h3>
-    <p>₦30,000 Cash</p>
-    <button>Claim</button>
-  </div>
-  <div>
-    <h3>CashBox</h3>
-    <p>20.00% Max Annual Yield</p>
-    <button>₦1 to Start</button>
-  </div>
-</div>
+document.getElementById("goSignup").addEventListener("click",()=>showPage('signupPage'));
+document.getElementById("goLogin").addEventListener("click",()=>showPage('loginPage'));
+document.getElementById("loginButton").addEventListener("click",login);
+document.getElementById("signupButton").addEventListener("click",signup);
 
-<div class="promo">
-  <p>Get ₦30,000 Cash - Join Little Dreams Savings Plan</p>
-  <button>Claim Now</button>
-</div>
+function signup(){
+const name=document.getElementById("signupName").value;
+const email=document.getElementById("signupEmail").value;
+const password=document.getElementById("signupPassword").value;
+const confirm=document.getElementById("signupConfirm").value;
+if(!name||!email||!password||!confirm){alert("Fill all fields");return;}
+if(password!==confirm){alert("Passwords do not match");return;}
+if(users.find(u=>u.email===email)){alert("User exists, login"); showPage('loginPage'); return;}
+users.push({name,email,password});
+localStorage.setItem("users",JSON.stringify(users));
+alert("Signup successful, login now"); showPage('loginPage');
+}
 
-<div class="bottom-nav">
-  <div>Home</div>
-  <div>Wealth</div>
-  <div>Reward</div>
-  <div>Me</div>
-</div>
+function login(){
+const email=document.getElementById("loginEmail").value;
+const password=document.getElementById("loginPassword").value;
+let user=users.find(u=>u.email===email && u.password===password);
+if(!user){document.getElementById("loginEmail").classList.add('errorShake'); document.getElementById("loginPassword").classList.add('errorShake'); setTimeout(()=>{document.getElementById("loginEmail").classList.remove('errorShake'); document.getElementById("loginPassword").classList.remove('errorShake');},300); alert("Invalid credentials"); return;}
+loggedInUser=user;
+localStorage.setItem("loggedInUser",JSON.stringify(user));
+document.getElementById("username").innerText=user.name;
+document.getElementById("username2").innerText=user.name;
+showPage('dashboardPage');
+}
 
+// Dashboard update
+function updateDashboard(){
+document.getElementById("balance").innerText="₦"+balance;
+document.getElementById("balance2").innerText="₦"+balance;
+let last=document.getElementById("lastTransaction"); last.innerHTML="";
+if(transactions.length>0){let t=transactions[transactions.length-1]; let div=document.createElement("div"); div.classList.add("transaction-item"); div.innerHTML=`<span>${t.title}</span><span class="${t.type}">${t.type==='credit'?"+":"-"}₦${t.amount}</span>`; last.appendChild(div);}
+}
+
+// Deposit
+function fundWallet(){const amount=prompt("Enter deposit amount (NGN)"); if(!amount||amount<=0){alert("Invalid"); return;} transactions.push({title:"Deposit",amount:parseFloat(amount),type:"credit",id:"TXN"+Math.floor(Math.random()*1000000),date:new Date().toLocaleString(),method:"Wallet"}); balance+=parseFloat(amount); newTransaction=true; showTransactionBadge(); updateDashboard(); alert(`Deposited ₦${amount}`);}
+
+// Bottom nav badge
+function showTransactionBadge(){document.getElementById('transactionBadge').style.display='block';}
+function hideTransactionBadge(){document.getElementById('transactionBadge').style.display='none'; newTransaction=false;}
+
+// Prefill username if logged in
+if(loggedInUser){document.getElementById("username").innerText=loggedInUser.name; document.getElementById("username2").innerText=loggedInUser.name; showPage('dashboardPage');}
+</script>
 </body>
 </html>
